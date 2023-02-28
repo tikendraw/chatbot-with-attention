@@ -1,3 +1,4 @@
 funcyou
 embedding/glove.6B.50d.txt
+embedding/embedding_matrix.npy
 .ipynb_checkpoints
