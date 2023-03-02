@@ -56,15 +56,6 @@ def embedding_matrix_creater(EMBEDDING_DIMENSION, word_index):
     return embedding_matrix
 
 
-# make vector
-def make_vector(x, y):
-    x = vectorizer(x)
-    y = vectorizer(y)
-
-    x = x[:-1]
-    y_in = y[:-1]
-    y_out = y[1:]
-    return (x, y_in), y_out
 
 
 def main(
@@ -75,7 +66,7 @@ def main(
 ):
     # Load data
     data = pd.read_csv(directory, sep=sep, encoding="latin1")
-    data.columns = ["col1", "col2"]
+    # data.columns = ["col1", "col2"]
 
     # Vectorize the data
     vectorizer = TextVectorization(
@@ -85,6 +76,16 @@ def main(
     # Adapt
     all_words_here = pd.concat([data["col1"], data["col2"]], axis=0)
     vectorizer.adapt(all_words_here)
+
+    # make vector
+    def make_vector(x, y):
+        x = vectorizer(x)
+        y = vectorizer(y)
+
+        x = x[:-1]
+        y_in = y[:-1]
+        y_out = y[1:]
+        return (x, y_in), y_out
 
     # Loading Embedding weights
     word_dict = {word: i for i, word in enumerate(vectorizer.get_vocabulary())}
