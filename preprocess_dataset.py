@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import TextVectorization
 import tensorflow_text as tf_text
 import pickle
-
+from sklearn.model_selection import train_test_split
 
 # preprocessing text
 def tf_lower_and_split_punct_en(text) -> str:
@@ -102,7 +102,7 @@ def main(
         allow_pickle=True
         )
     # compressing
-    zipfile.ZipFile("./embedding/embedding_matrix.zip", mode="w").write(
+    zipfile.ZipFile("embedding_matrix.zip", mode="w").write(
         "./embedding/embedding_matrix.npy"
     )
 
@@ -115,16 +115,22 @@ def main(
         },
         open("./components/vectorizer.pkl", "wb"),
     )
-
+    xtrain, xtest, ytrain, ytest = train_test_split(data["col1"], data["col2"], test_size=.01, random_state= 44)
     train_data = tf.data.Dataset.from_tensor_slices((data["col1"], data["col2"]))
-    train_data = (
-        train_data.map(make_vector).batch(batch_size).prefetch(tf.data.AUTOTUNE)
-    )
+    #NOTE: purpose of these is data is not to test but just to predict some examples
+    # i am aware that is has been included in training
+    test_data = tf.data.Dataset.from_tensor_slices((xtest, ytest))
 
-    save_train_data_path = "./dataset/train/"
+    train_data = train_data.map(make_vector).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    test_data = test_data.map(make_vector).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
-    # Save the train_data
-    train_data.save(save_train_data_path, compression="GZIP")
+    # save paths
+    save_train_data_path = './dataset/train/'
+    save_test_data_path = './dataset/test/'
+
+    # # save the train_data and test_data
+    train_data.save(save_train_data_path, compression='GZIP')
+    test_data.save(save_test_data_path, compression='GZIP')
 
 
 script_description = """
