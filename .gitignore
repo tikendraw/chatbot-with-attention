@@ -2,3 +2,7 @@ funcyou
 embedding/glove.6B.50d.txt
 embedding/embedding_matrix.npy
 .ipynb_checkpoints
+tf_model-20230301T234046Z-001.zip
+chatbot
+chatbot/
+.vscode/
