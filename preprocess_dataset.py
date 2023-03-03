@@ -56,13 +56,8 @@ def embedding_matrix_creater(EMBEDDING_DIMENSION, word_index):
     return embedding_matrix
 
 
-
-
 def main(
-    directory: str,
-    batch_size: int = 32,
-    max_output_length: int = 100,
-    sep: str = ","
+    directory: str, batch_size: int = 32, max_output_length: int = 100, sep: str = ","
 ):
     # Load data
     data = pd.read_csv(directory, sep=sep, encoding="latin1")
@@ -96,11 +91,7 @@ def main(
     )
 
     # Saving embedding_matrix for further use
-    np.save(
-        "./embedding/embedding_matrix.npy",
-        embedding_matrix,
-        allow_pickle=True
-        )
+    np.save("./embedding/embedding_matrix.npy", embedding_matrix, allow_pickle=True)
     # compressing
     zipfile.ZipFile("embedding_matrix.zip", mode="w").write(
         "./embedding/embedding_matrix.npy"
@@ -109,28 +100,30 @@ def main(
     # Pickle the config and weights
 
     os.makedirs("components", exist_ok=True)
-    pickle.dump({
-        "config": vectorizer.get_config(),
-        "weights": vectorizer.get_weights()
-        },
+    pickle.dump(
+        {"config": vectorizer.get_config(), "weights": vectorizer.get_weights()},
         open("./components/vectorizer.pkl", "wb"),
     )
-    xtrain, xtest, ytrain, ytest = train_test_split(data["col1"], data["col2"], test_size=.01, random_state= 44)
+    xtrain, xtest, ytrain, ytest = train_test_split(
+        data["col1"], data["col2"], test_size=0.01, random_state=44
+    )
     train_data = tf.data.Dataset.from_tensor_slices((data["col1"], data["col2"]))
-    #NOTE: purpose of these is data is not to test but just to predict some examples
+    # NOTE: purpose of these is data is not to test but just to predict some examples
     # i am aware that is has been included in training
     test_data = tf.data.Dataset.from_tensor_slices((xtest, ytest))
 
-    train_data = train_data.map(make_vector).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    train_data = (
+        train_data.map(make_vector).batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    )
     test_data = test_data.map(make_vector).batch(BATCH_SIZE).prefetch(tf.data.AUTOTUNE)
 
     # save paths
-    save_train_data_path = './dataset/train/'
-    save_test_data_path = './dataset/test/'
+    save_train_data_path = "./dataset/train/"
+    save_test_data_path = "./dataset/test/"
 
     # # save the train_data and test_data
-    train_data.save(save_train_data_path, compression='GZIP')
-    test_data.save(save_test_data_path, compression='GZIP')
+    train_data.save(save_train_data_path, compression="GZIP")
+    test_data.save(save_test_data_path, compression="GZIP")
 
 
 script_description = """
